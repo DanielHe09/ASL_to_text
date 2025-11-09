@@ -6,10 +6,12 @@ import ASL_to_English.signtalk as signtalk
 
 router = APIRouter()
 
+#health check endpoint
 @router.get("/health")
 async def health():
     return {"status": "ok"}
 
+#predict endpoint that accepts an image and returns a prediction
 @router.post("/predict")
 async def predict(request: Request, file: UploadFile = File(...)):
     #Access app state through request
