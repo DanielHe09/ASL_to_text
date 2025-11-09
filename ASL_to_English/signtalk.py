@@ -51,7 +51,7 @@ from sklearn.metrics import accuracy_score
 
 def parse_args():
     ap = argparse.ArgumentParser()
-    ap.add_argument("--labels", type=str, default="Hello,Thanks,Yes,No",
+    ap.add_argument("--labels", type=str, default="Hello,Thanks,Yes,No,Please,ILoveYou,This,isSay,Less",
                     help="Comma-separated list of target words/signs")
     ap.add_argument("--indices", type=str, default="0,1,2", help="Comma-separated camera indices to try/cycle")
     ap.add_argument("--hands", type=int, default=1, help="Number of hands to detect (1 or 2)")
@@ -106,6 +106,7 @@ def open_cam(idx):
         return None
     return cap
 
+
 def call_model():
     args = parse_args()
     labels = [s.strip() for s in args.labels.split(",") if s.strip()]
@@ -153,143 +154,143 @@ def call_model():
     print("Controls: 1..N=switch label  c=capture  u=undo  t=train  r=toggle recognize  n=next cam  g=gray  s=speak  backspace=clear  q/ESC=quit")
     active = 0
 
-    
-    ok, frame = cap.read()
-    if not ok:
-        cap.release()
-        current = (current + 1) % len(indices)
-        cap = open_cam(indices[current])
-        if cap is None:
-            continue
-        else:
-            continue
-
-    img_rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
-
-    res = hands.process(img_rgb)
-    lm = None
-    if res.multi_hand_landmarks:
-        # take the first detected hand
-        lm = res.multi_hand_landmarks[0]
-        mp_drawing.draw_landmarks(
-            frame, lm, mp_hands.HAND_CONNECTIONS,
-            mp_styles.get_default_hand_landmarks_style(),
-            mp_styles.get_default_hand_connections_style()
-        )
-
-    # build HUD
-    counts = {lab: len(dataset[lab]) for lab in labels}
-    line1 = f"[cam {indices[current]}] Active [{active+1}] {labels[active]} | c=cap u=undo t=train r=recognize n=next g=gray s=speak q=quit"
-    line2 = "Samples: " + " | ".join([f"{i+1}:{labels[i]}={counts[labels[i]]}" for i in range(len(labels))])
-    line3 = "Transcript: " + " ".join(transcript[-10:])
-    # recognition
-    pred_text = ""
-    if recognizing and clf is not None and lm is not None:
-        feat = normalize_landmarks(lm.landmark).reshape(1, -1)
-        pred_id = clf.predict(feat)[0]
-        proba = None
-        if hasattr(clf, "predict_proba"):
-            try:
-                proba = np.max(clf.predict_proba(feat))
-            except Exception:
-                proba = None
-        pred_text = id_to_label[pred_id]
-        last_pred = (pred_text, proba if proba is not None else 1.0)
-        stable_queue.append(pred_text)
-        # if stable over last K frames, append to transcript
-        if len(stable_queue) == stable_queue.maxlen and len(set(stable_queue)) == 1:
-            transcript.append(pred_text)
-            speak(pred_text)
-            stable_queue.clear()
-
-    if last_pred:
-        lp, conf = last_pred
-        line4 = f"Recognizing: {lp} ({conf:.2f})" if conf is not None else f"Recognizing: {lp}"
-    else:
-        line4 = "Recognizing: (idle)" if recognizing else "Recognizing: OFF"
-
-    if gray:
-        view = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
-        view = cv2.cvtColor(view, cv2.COLOR_GRAY2BGR)
-    else:
-        view = frame
-
-    draw_hud(view, [line1, line2, line3, line4])
-    cv2.imshow("SignTalk", view)
-
-    key = cv2.waitKey(1) & 0xFF
-    if key in (ord('q'), 27):
-        break
-    elif key == ord('g'):
-        gray = not gray
-    elif key == ord('n'):
-        cap.release()
-        tried = 0
-        while tried < len(indices):
+    while True:
+        ok, frame = cap.read()
+        if not ok:
+            cap.release()
             current = (current + 1) % len(indices)
             cap = open_cam(indices[current])
-            if cap is not None:
-                print(f"Switched to camera index {indices[current]}")
-                break
-            tried += 1
-        if cap is None:
-            raise SystemExit("No working cameras available.")
-    elif key == ord('c'):
-        if lm is not None:
-            feat = normalize_landmarks(lm.landmark)
-            dataset[labels[active]].append(feat)
-            print(f"[+] captured {labels[active]}  (total {len(dataset[labels[active]])})")
+            if cap is None:
+                continue
+            else:
+                continue
+
+        img_rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+
+        res = hands.process(img_rgb)
+        lm = None
+        if res.multi_hand_landmarks:
+            # take the first detected hand
+            lm = res.multi_hand_landmarks[0]
+            mp_drawing.draw_landmarks(
+                frame, lm, mp_hands.HAND_CONNECTIONS,
+                mp_styles.get_default_hand_landmarks_style(),
+                mp_styles.get_default_hand_connections_style()
+            )
+
+        # build HUD
+        counts = {lab: len(dataset[lab]) for lab in labels}
+        line1 = f"[cam {indices[current]}] Active [{active+1}] {labels[active]} | c=cap u=undo t=train r=recognize n=next g=gray s=speak q=quit"
+        line2 = "Samples: " + " | ".join([f"{i+1}:{labels[i]}={counts[labels[i]]}" for i in range(len(labels))])
+        line3 = "Transcript: " + " ".join(transcript[-10:])
+        # recognition
+        pred_text = ""
+        if recognizing and clf is not None and lm is not None:
+            feat = normalize_landmarks(lm.landmark).reshape(1, -1)
+            pred_id = clf.predict(feat)[0]
+            proba = None
+            if hasattr(clf, "predict_proba"):
+                try:
+                    proba = np.max(clf.predict_proba(feat))
+                except Exception:
+                    proba = None
+            pred_text = id_to_label[pred_id]
+            last_pred = (pred_text, proba if proba is not None else 1.0)
+            stable_queue.append(pred_text)
+            # if stable over last K frames, append to transcript
+            if len(stable_queue) == stable_queue.maxlen and len(set(stable_queue)) == 1:
+                transcript.append(pred_text)
+                speak(pred_text)
+                stable_queue.clear()
+
+        if last_pred:
+            lp, conf = last_pred
+            line4 = f"Recognizing: {lp} ({conf:.2f})" if conf is not None else f"Recognizing: {lp}"
         else:
-            print("No hand detected for capture.")
-    elif key == ord('u'):
-        if dataset[labels[active]]:
-            dataset[labels[active]].pop()
-            print(f"[-] removed last sample of {labels[active]}  (total {len(dataset[labels[active]])})")
-    elif key == ord('t'):
-        # build X, y
-        X, y = [], []
-        for lab, feats in dataset.items():
-            X.extend(feats)
-            y.extend([label_to_id[lab]] * len(feats))
-        if len(set(y)) < 2:
-            print("Need samples from at least 2 labels to train.")
-        elif len(X) < 10:
-            print("Collect more samples (>=10 total recommended).")
+            line4 = "Recognizing: (idle)" if recognizing else "Recognizing: OFF"
+
+        if gray:
+            view = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+            view = cv2.cvtColor(view, cv2.COLOR_GRAY2BGR)
         else:
-            X = np.array(X, dtype=np.float32)
-            y = np.array(y, dtype=np.int32)
-            clf_local = KNeighborsClassifier(n_neighbors=max(1, min(args.neighbors, len(set(y)))))
-            clf_local.fit(X, y)
-            clf = clf_local
-            # quick resubstitution accuracy (just a sanity check)
-            acc = accuracy_score(y, clf.predict(X))
-            print(f"[train] done. resub-accuracy ~ {acc:.2f} on {len(y)} samples.")
+            view = frame
+
+        draw_hud(view, [line1, line2, line3, line4])
+        cv2.imshow("SignTalk", view)
+
+        key = cv2.waitKey(1) & 0xFF
+        if key in (ord('q'), 27):
+            break
+        elif key == ord('g'):
+            gray = not gray
+        elif key == ord('n'):
+            cap.release()
+            tried = 0
+            while tried < len(indices):
+                current = (current + 1) % len(indices)
+                cap = open_cam(indices[current])
+                if cap is not None:
+                    print(f"Switched to camera index {indices[current]}")
+                    break
+                tried += 1
+            if cap is None:
+                raise SystemExit("No working cameras available.")
+        elif key == ord('c'):
+            if lm is not None:
+                feat = normalize_landmarks(lm.landmark)
+                dataset[labels[active]].append(feat)
+                print(f"[+] captured {labels[active]}  (total {len(dataset[labels[active]])})")
+            else:
+                print("No hand detected for capture.")
+        elif key == ord('u'):
+            if dataset[labels[active]]:
+                dataset[labels[active]].pop()
+                print(f"[-] removed last sample of {labels[active]}  (total {len(dataset[labels[active]])})")
+        elif key == ord('t'):
+            # build X, y
+            X, y = [], []
+            for lab, feats in dataset.items():
+                X.extend(feats)
+                y.extend([label_to_id[lab]] * len(feats))
+            if len(set(y)) < 2:
+                print("Need samples from at least 2 labels to train.")
+            elif len(X) < 10:
+                print("Collect more samples (>=10 total recommended).")
+            else:
+                X = np.array(X, dtype=np.float32)
+                y = np.array(y, dtype=np.int32)
+                clf_local = KNeighborsClassifier(n_neighbors=max(1, min(args.neighbors, len(set(y)))))
+                clf_local.fit(X, y)
+                clf = clf_local
+                # quick resubstitution accuracy (just a sanity check)
+                acc = accuracy_score(y, clf.predict(X))
+                print(f"[train] done. resub-accuracy ~ {acc:.2f} on {len(y)} samples.")
+                if args.save:
+                    with open(args.save, "wb") as f:
+                        pickle.dump(dataset, f)
+                        print(f"[save] dataset -> {args.save}")
+        elif key == ord('r'):
+            recognizing = not recognizing
+            stable_queue.clear()
+            print("Recognize:", recognizing)
+        elif key == ord('s'):
+            if last_pred:
+                speak(last_pred[0])
+        elif key == ord('w'):  # 'w' for write/save
             if args.save:
                 with open(args.save, "wb") as f:
                     pickle.dump(dataset, f)
-                    print(f"[save] dataset -> {args.save}")
-    elif key == ord('r'):
-        recognizing = not recognizing
-        stable_queue.clear()
-        print("Recognize:", recognizing)
-    elif key == ord('s'):
-        if last_pred:
-            speak(last_pred[0])
-    elif key == ord('w'):  # 'w' for write/save
-        if args.save:
-            with open(args.save, "wb") as f:
-                pickle.dump(dataset, f)
-                print(f"[save] dataset -> {args.save} ({sum(len(v) for v in dataset.values())} samples)")
-        else:
-            # Auto-generate filename if --save not provided
-            save_file = "signtalk_data.pkl"
-            with open(save_file, "wb") as f:
-                pickle.dump(dataset, f)
-                print(f"[save] dataset -> {save_file} ({sum(len(v) for v in dataset.values())} samples)")
-    elif key == 8:  # backspace
-        transcript.clear()
-    elif key in range(ord('1'), ord('1') + len(labels)):
-        active = key - ord('1')
+                    print(f"[save] dataset -> {args.save} ({sum(len(v) for v in dataset.values())} samples)")
+            else:
+                # Auto-generate filename if --save not provided
+                save_file = "signtalk_data.pkl"
+                with open(save_file, "wb") as f:
+                    pickle.dump(dataset, f)
+                    print(f"[save] dataset -> {save_file} ({sum(len(v) for v in dataset.values())} samples)")
+        elif key == 8:  # backspace
+            transcript.clear()
+        elif key in range(ord('1'), ord('1') + len(labels)):
+            active = key - ord('1')
 
     cap.release()
     cv2.destroyAllWindows()
@@ -301,5 +302,81 @@ def call_model():
             pickle.dump(dataset, f)
             print(f"\n[auto-save] dataset -> {save_file} ({sum(len(v) for v in dataset.values())} samples)")
 
+def train_model(pkl_path="signtalk_data.pkl", neighbors=5):
+    """Train model from pickle file. Returns classifier, id_to_label mapping, and hands processor."""
+    # Load dataset
+    if not os.path.exists(pkl_path):
+        raise FileNotFoundError(f"Training data not found: {pkl_path}")
+    
+    with open(pkl_path, "rb") as f:
+        dataset = pickle.load(f)
+    
+    # Extract labels from dataset (not from args)
+    labels = list(dataset.keys())
+    if not labels:
+        raise ValueError("Dataset is empty")
+    
+    label_to_id = {lab: i for i, lab in enumerate(labels)}
+    id_to_label = {i: lab for lab, i in label_to_id.items()}
+    
+    # Build X, y
+    X, y = [], []
+    for lab, feats in dataset.items():
+        if len(feats) > 0:
+            X.extend(feats)
+            y.extend([label_to_id[lab]] * len(feats))
+    
+    if len(X) == 0:
+        raise ValueError("No training samples found")
+    
+    if len(set(y)) < 2:
+        raise ValueError("Need samples from at least 2 labels")
+    
+    # Train classifier
+    X = np.array(X, dtype=np.float32)
+    y = np.array(y, dtype=np.int32)
+    n_neighbors = min(neighbors, len(set(y)))
+    clf = KNeighborsClassifier(n_neighbors=n_neighbors)
+    clf.fit(X, y)
+    
+    # Initialize MediaPipe Hands
+    hands = mp_hands.Hands(
+        static_image_mode=True,
+        max_num_hands=1,
+        min_detection_confidence=0.6,
+        min_tracking_confidence=0.5
+    )
+    
+    return clf, id_to_label, hands
+
+def predict_from_image(image, clf, id_to_label, hands):
+    """Predict ASL sign from image. Requires trained classifier and hands processor."""
+    # Convert to RGB
+    img_rgb = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
+    
+    # Detect hand
+    res = hands.process(img_rgb)
+    if not res.multi_hand_landmarks:
+        return None, 0.0, "no_hand_detected"
+    
+    # Get landmarks and predict
+    lm = res.multi_hand_landmarks[0]
+    feat = normalize_landmarks(lm.landmark).reshape(1, -1)
+    pred_id = clf.predict(feat)[0]
+    confidence = clf.predict_proba(feat)[0].max()
+    
+    return id_to_label[pred_id], confidence, "success"
+
 if __name__ == "__main__":
-    call_model()
+    #call_model()
+    clf, id_to_label, hands = train_model("signtalk_data.pkl")
+    print("Finished training model")
+    print(predict_from_image(cv2.imread("photos/hello.jpeg"), clf, id_to_label, hands))
+    print(predict_from_image(cv2.imread("photos/ThankYou.jpeg"), clf, id_to_label, hands))
+    print(predict_from_image(cv2.imread("photos/yes.jpeg"), clf, id_to_label, hands))
+    print(predict_from_image(cv2.imread("photos/no.jpeg"), clf, id_to_label, hands))
+    print(predict_from_image(cv2.imread("photos/Please.jpg"), clf, id_to_label, hands))
+    print(predict_from_image(cv2.imread("photos/ILoveYou.jpeg"), clf, id_to_label, hands))
+    print(predict_from_image(cv2.imread("photos/This.jpeg"), clf, id_to_label, hands))
+    print(predict_from_image(cv2.imread("photos/isSay.jpeg"), clf, id_to_label, hands))
+    print(predict_from_image(cv2.imread("photos/Less.jpeg"), clf, id_to_label, hands))
