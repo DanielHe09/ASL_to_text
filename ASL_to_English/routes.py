@@ -1,42 +1,40 @@
-from fastapi import APIRouter, Depends, HTTPException, Request
-from pydantic import BaseModel
-from sklearn.neighbors import KNeighborsClassifier
-
+from fastapi import APIRouter, Depends, HTTPException, File, UploadFile, Request
 import json
+import numpy as np
+import cv2
+import ASL_to_English.signtalk as signtalk
 
 router = APIRouter()
-
-class Note(BaseModel):
-    id: int
-    title: str
-    content: str
 
 @router.get("/health")
 async def health():
     return {"status": "ok"}
 
 @router.post("/predict")
-async def predict(file: UploadFile = File(...)):
-    # 1. Read uploaded image
-    # 2. Process with your model
-    # 3. Return prediction
-    pass
+async def predict(request: Request, file: UploadFile = File(...)):
+    #Access app state through request
+    if not hasattr(request.app.state, 'classifier') or request.app.state.classifier is None:
+        raise HTTPException(status_code=503, detail="Model not loaded. Server may still be initializing.")
+    
+    #Read uploaded image
+    contents = await file.read()    
+    nparr = np.frombuffer(contents, np.uint8)
+    image = cv2.imdecode(nparr, cv2.IMREAD_COLOR)
+    
+    if image is None:
+        raise HTTPException(status_code=400, detail="Could not decode image. Please ensure it's a valid image file.")
 
-@router.on_event("startup")
-async def startup_event():
-    # Load dataset from pickle file
-    with open("signtalk_data.pkl", "rb") as f:
-        dataset = pickle.load(f)
+    #Process with model
+    prediction, confidence, status = signtalk.predict_from_image(
+        image, 
+        request.app.state.classifier, 
+        request.app.state.id_to_label, 
+        request.app.state.hands
+    )
     
-    # Train classifier once
-    # Build X, y from dataset
-    X, y = [], []
-    for lab, feats in dataset.items():
-        X.extend(feats)
-        y.extend([label_to_id[lab]] * len(feats))
-    
-    # Train KNN classifier
-    classifier = KNeighborsClassifier(n_neighbors=5)
-    classifier.fit(X, y)
-    
-    print("Model trained and ready!")
+    #Return prediction
+    return {
+        "prediction": prediction,
+        "confidence": float(confidence) if confidence else 0.0,
+        "status": status
+    }

@@ -369,6 +369,7 @@ def predict_from_image(image, clf, id_to_label, hands):
 
 if __name__ == "__main__":
     #call_model()
+    
     clf, id_to_label, hands = train_model("signtalk_data.pkl")
     print("Finished training model")
     print(predict_from_image(cv2.imread("photos/hello.jpeg"), clf, id_to_label, hands))
@@ -380,3 +381,4 @@ if __name__ == "__main__":
     print(predict_from_image(cv2.imread("photos/This.jpeg"), clf, id_to_label, hands))
     print(predict_from_image(cv2.imread("photos/isSay.jpeg"), clf, id_to_label, hands))
     print(predict_from_image(cv2.imread("photos/Less.jpeg"), clf, id_to_label, hands))
+    
