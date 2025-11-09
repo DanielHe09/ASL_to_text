@@ -43,7 +43,9 @@ async def predict(request: Request, file: UploadFile = File(...)):
         raise HTTPException(status_code=500, detail="Error getting audio.")
 
     # Encode audio as base64 for JSON response
-    audio_base64 = base64.b64encode(audio).decode('utf-8')
+    chunks = list(audio)                 # or: b"".join(audio) directly
+    audio_bytes = b"".join(chunks)       # bytes now
+    audio_base64 = base64.b64encode(audio_bytes).decode("utf-8")
 
     #Return prediction
     return {
