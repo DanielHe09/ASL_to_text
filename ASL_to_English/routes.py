@@ -1,8 +1,10 @@
 from fastapi import APIRouter, Depends, HTTPException, File, UploadFile, Request
 import json
+import base64
 import numpy as np
 import cv2
 import ASL_to_English.signtalk as signtalk
+import ASL_to_English.api_calls as api_calls
 
 router = APIRouter()
 
@@ -11,7 +13,7 @@ router = APIRouter()
 async def health():
     return {"status": "ok"}
 
-#predict endpoint that accepts an image and returns a prediction
+#predict endpoint that accepts an image and returns audio + prediction
 @router.post("/predict")
 async def predict(request: Request, file: UploadFile = File(...)):
     #Access app state through request
@@ -34,8 +36,18 @@ async def predict(request: Request, file: UploadFile = File(...)):
         request.app.state.hands
     )
 
+    #Get audio
+    audio = api_calls.get_audio(prediction)
+
+    if audio is None:
+        raise HTTPException(status_code=500, detail="Error getting audio.")
+
+    # Encode audio as base64 for JSON response
+    audio_base64 = base64.b64encode(audio).decode('utf-8')
+
     #Return prediction
     return {
+        "audio": audio_base64,
         "prediction": prediction,
         "confidence": float(confidence) if confidence else 0.0,
         "status": status

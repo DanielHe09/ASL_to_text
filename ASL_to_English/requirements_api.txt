@@ -1,0 +1,11 @@
+# Requirements for FastAPI server only
+# (MediaPipe dependencies are in requirements_signtalk.txt)
+
+# For FastAPI server
+fastapi>=0.100.0
+uvicorn>=0.23.0
+python-multipart>=0.0.6  # Required for file uploads (UploadFile)
+
+# For ElevenLabs API
+elevenlabs>=0.1.0
+

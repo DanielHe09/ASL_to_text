@@ -51,6 +51,7 @@ ASL_to_English/Tensorflow/
 # Test images (not needed for API)
 ASL_to_English/test/
 ASL_to_English/photos/
+ASL_to_English/.env
 
 # Jupyter notebooks (not needed for API)
 *.ipynb

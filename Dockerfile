@@ -19,17 +19,15 @@ RUN apt-get update && apt-get install -y \
 
 # Copy requirements files
 COPY ASL_to_English/requirements_signtalk.txt .
-COPY ASL_to_English/requirements.txt .
+COPY ASL_to_English/requirements_api.txt .
 
 # Install Python dependencies
-# First install API dependencies (FastAPI, uvicorn, etc.)
-RUN pip install --no-cache-dir \
-    fastapi>=0.100.0 \
-    uvicorn>=0.23.0 \
-    python-multipart>=0.0.6
-
-# Then install ML dependencies from signtalk requirements
+# First install ML dependencies from signtalk requirements (MediaPipe, OpenCV, scikit-learn, etc.)
 RUN pip install --no-cache-dir -r requirements_signtalk.txt
+
+# Then install API dependencies (FastAPI, uvicorn, elevenlabs, etc.)
+# Note: Using requirements_api.txt instead of requirements.txt to avoid TensorFlow conflicts
+RUN pip install --no-cache-dir -r requirements_api.txt
 
 # Copy the entire project structure
 # This preserves the ASL_to_English package structure needed for imports
