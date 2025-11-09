@@ -54,3 +54,21 @@ async def predict(request: Request, file: UploadFile = File(...)):
         "confidence": float(confidence) if confidence else 0.0,
         "status": status
     }
+
+@router.post("/transcribe")
+async def transcribe(request: Request, file: UploadFile = File(...)):
+    #Read uploaded audio file (MP3, WAV, etc.)
+    contents = await file.read()
+    
+    if not contents:
+        raise HTTPException(status_code=400, detail="Audio file is empty.")
+
+    #Transcribe audio - pass bytes directly to Gemini
+    transcription = api_calls.get_transcription(contents, file.content_type)
+    
+    if transcription is None:
+        raise HTTPException(status_code=500, detail="Error transcribing audio.")
+    
+    return {
+        "transcription": transcription
+    }

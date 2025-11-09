@@ -1,3 +1,11 @@
+# Load environment variables FIRST, before any other imports
+from dotenv import load_dotenv
+import os
+
+# Load .env file before importing anything that uses environment variables
+load_dotenv('ASL_to_English/.env')
+
+# Now import the app (which will import routes, which will import api_calls)
 from ASL_to_English.api_server import app
 
 #app.py doesn't run the server, just sets it up

@@ -6,6 +6,13 @@ fastapi>=0.100.0
 uvicorn>=0.23.0
 python-multipart>=0.0.6  # Required for file uploads (UploadFile)
 
+# For environment variables
+python-dotenv>=1.0.0
+
 # For ElevenLabs API
 elevenlabs>=0.1.0
+
+# for Gemini API
+google-genai>=0.3.0
+
 
