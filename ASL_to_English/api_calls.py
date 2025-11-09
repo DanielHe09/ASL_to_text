@@ -4,6 +4,7 @@ from elevenlabs.client import ElevenLabs
 
 client = ElevenLabs(api_key=os.getenv("ELEVENLABS_API_KEY"))
 
+#get audio from elevenlabs api
 def get_audio(text_input):
     
     try:
@@ -22,3 +23,4 @@ def get_audio(text_input):
     except Exception as e:
         print(f"Error getting audio: {e}")
         return None
+
