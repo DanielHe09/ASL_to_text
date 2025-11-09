@@ -1,5 +1,7 @@
 # ASL to Text Translator
 
+Frontend repo that connects to this backend server: https://github.com/bradleyyang/hacktrent-app
+
 This repository provides a complete system for translating **American Sign Language (ASL)** video frames into **English text**, with an optional text-to-speech output layer.  
 It includes a trained gesture recognition model, a FastAPI backend for inference, and a fully containerized runtime for easy deployment.
 
