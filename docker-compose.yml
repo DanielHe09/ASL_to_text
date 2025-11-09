@@ -1,0 +1,21 @@
+version: '3.8'
+
+services:
+  asl-api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "8000:8000"
+    environment:
+      - PYTHONUNBUFFERED=1
+    # Uncomment to mount local directory for development
+    # volumes:
+    #   - ./ASL_to_English:/app/ASL_to_English
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/health')"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+

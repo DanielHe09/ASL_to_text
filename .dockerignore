@@ -1,0 +1,76 @@
+# Virtual environments
+venv/
+env/
+ENV/
+.venv/
+
+# Python cache
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+
+# Git
+.git/
+.gitignore
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Logs
+*.log
+logs/
+
+# Environment variables
+.env
+.env.local
+
+# Temporary files
+*.tmp
+*.temp
+*.bak
+*.backup
+
+# Large TensorFlow models directory (not needed for API)
+ASL_to_English/Tensorflow/
+
+# Test images (not needed for API)
+ASL_to_English/test/
+ASL_to_English/photos/
+
+# Jupyter notebooks (not needed for API)
+*.ipynb
+
+# Documentation (optional - comment out if you want docs in image)
+*.md
+!README.md
+ASL_to_English/HOW_TO_DEPLOY_API.md
+
+# Model checkpoints (keep signtalk_data.pkl, exclude TensorFlow checkpoints)
+ASL_to_English/my_ssd_mobnet/
+
+# Scripts not needed for API
+ASL_to_English/image_collection.py
+ASL_to_English/webcam_smoke_test.py
+ASL_to_English/test_model.py
+ASL_to_English/realtime_image_collection.ipynb
+ASL_to_English/Signlangtranslator.ipynb
+
+# Setup scripts
+CLEAN_SETUP.sh
+GET_STARTED.sh
+

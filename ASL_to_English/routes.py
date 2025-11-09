@@ -31,7 +31,7 @@ async def predict(request: Request, file: UploadFile = File(...)):
         request.app.state.id_to_label, 
         request.app.state.hands
     )
-    
+
     #Return prediction
     return {
         "prediction": prediction,
