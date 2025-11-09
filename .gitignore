@@ -3,6 +3,7 @@ venv/
 env/
 ENV/
 .venv
+ASL_to_English/.env
 
 # Python
 __pycache__/
@@ -51,3 +52,6 @@ logs/
 # my_ssd_mobnet/ - KEEP model checkpoints
 # Tensorflow/models/ - KEEP if needed for TensorFlow approach
 
+DEPLOY_DIGITALOCEAN.md
+ASL_to_English/photos/
+ASL_to_English/HOW_TO_DEPLOY_API.md
