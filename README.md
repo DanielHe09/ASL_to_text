@@ -19,9 +19,14 @@ The general approach was originally inspired by open-source ASL recognition rese
 ---
 
 ## 🧱 Project Structure
-
+```
 ASL_to_text/
-├─ ASL_to_English/ # Model code/checkpoints & related assets (architecture adapted)
+├─ ASL_to_English/ # Packaged model assets & notebooks
+│ ├─ annotations/ # Label data / TF records (if present)
+│ ├─ my_ssd_mobnet/ # Model pipeline / checkpoints / label_map
+│ ├─ test/ # Test images / clips
+│ ├─ Signlangtranslator.ipynb # Training / experimentation notebook
+│ └─ realtime_image_collection.ipynb # Webcam image collection notebook
 ├─ server.py # FastAPI app 
 ├─ requirements.txt # original python dep for training model (not needed unless you want to retrain model yourself)
 ├─ Dockerfile # Production container
@@ -31,6 +36,7 @@ ASL_to_text/
 ├─ .gitignore
 ├─ .dockerignore
 └─ README.md # (this file)
+```
 
 ## 🚀 Run Locally
 
@@ -38,44 +44,62 @@ ASL_to_text/
 ```bash
 python3 -m venv .venv
 source .venv/bin/activate
-pip install -r requirements_api.txt
-pip install -r requirements_signtalk.txt
+pip install -r ASL_to_English/requirements_api.txt
+pip install -r ASL_to_English/requirements_signtalk.txt
+```
 
-2. Start the API server
-uvicorn api.main:app --host 0.0.0.0 --port 8000
+### 2. Start the API server
+```bash
+python server.py
+```
 
-3. Test prediction endpoint
+### 3. Test prediction endpoint
+```bash
 curl -X POST "http://localhost:8000/predict" \
-     -H "Content-Type: application/json" \
-     -d '{"frames": <your_frame_array_here> }'
+     -F "file=@path/to/your/image.jpg"
+```
 
-🧭 Acknowledgements
+---
+
+## 🧭 Acknowledgements
 The model trained is forked from this repo:
 https://github.com/priiyaanjaalii0611/ASL_to_English
+
 However, the training process, API backend, system architecture, and deployment workflow in this repository are independently developed.
 
-2. Start the API server
-uvicorn api.main:app --host 0.0.0.0 --port 8000
-3. Test prediction endpoint
-curl -X POST "http://localhost:8000/predict" \
-     -H "Content-Type: application/json" \
-     -d '{"frames": <your_frame_array_here> }'
-🐳 Run with Docker
-Build the image
-docker build -t asl-recognition .
-Run the container
+---
+
+## 🐳 Run with Docker
+
+### Build the image
+```bash
+docker build -t asl-recognition-api .
+```
+
+### Run the container
+```bash
 docker run -p 8000:8000 \
   -e ELEVENLABS_API_KEY="your_key_here" \
   -e GEMINI_API_KEY="your_key_here" \
-  asl-recognition
-API will be available at:
-http://localhost:8000
-🎤 Optional Speech Output
-If you want the recognized text to be spoken aloud:
-export ELEVENLABS_API_KEY="your_key_here"
-Then call the /speak endpoint with text.
+  asl-recognition-api
+```
 
-🗺️ Future Improvements
-Webcam real-time streaming translation
-Larger vocabulary training
+API will be available at:
+- http://localhost:8000
+
+---
+
+## 🎤 Optional Speech Output
+If you want the recognized text to be spoken aloud:
+```bash
+export ELEVENLABS_API_KEY="your_key_here"
+```
+
+The `/predict` endpoint automatically returns audio along with the prediction.
+
+---
+
+## 🗺️ Future Improvements
+- Webcam real-time streaming translation
+- Larger vocabulary training
 
