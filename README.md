@@ -104,4 +104,4 @@ The `/predict` endpoint automatically returns audio along with the prediction.
 ## 🗺️ Future Improvements
 - Webcam real-time streaming translation
 - Larger vocabulary training
-
+- Model that take inputs of video clips rather than still frames
