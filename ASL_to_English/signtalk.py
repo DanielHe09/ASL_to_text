@@ -367,18 +367,10 @@ def predict_from_image(image, clf, id_to_label, hands):
     
     return id_to_label[pred_id], confidence, "success"
 
-if __name__ == "__main__":
-    #call_model()
-    
+if __name__ == "__main__":    
     clf, id_to_label, hands = train_model("signtalk_data.pkl")
     print("Finished training model")
-    print(predict_from_image(cv2.imread("photos/hello.jpeg"), clf, id_to_label, hands))
-    print(predict_from_image(cv2.imread("photos/ThankYou.jpeg"), clf, id_to_label, hands))
-    print(predict_from_image(cv2.imread("photos/yes.jpeg"), clf, id_to_label, hands))
-    print(predict_from_image(cv2.imread("photos/no.jpeg"), clf, id_to_label, hands))
-    print(predict_from_image(cv2.imread("photos/Please.jpg"), clf, id_to_label, hands))
-    print(predict_from_image(cv2.imread("photos/ILoveYou.jpeg"), clf, id_to_label, hands))
-    print(predict_from_image(cv2.imread("photos/This.jpeg"), clf, id_to_label, hands))
-    print(predict_from_image(cv2.imread("photos/isSay.jpeg"), clf, id_to_label, hands))
-    print(predict_from_image(cv2.imread("photos/Less.jpeg"), clf, id_to_label, hands))
+    
+    #to train model by yourself, simply comment out the top of the main function and uncomment the call_model function
+    #call_model()
     

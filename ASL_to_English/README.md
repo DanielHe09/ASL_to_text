@@ -17,6 +17,9 @@ The image annotations is done with the help of LabelImage file which you can use
 The model was made only with help of [Nicholas Renotte tutorial](https://youtu.be/pDXdlXlaCco)
 He's an inspiration!
 
+To train the model yourself and test it independently, read the comments at the top of the signtalk.py file and call only the call_model() function in the main function, 
+then run signtalk.py
+
 # TEST DATASET OUTPUT
 
 ![asl_result](https://user-images.githubusercontent.com/64598746/151710894-e128dcf8-575a-41e3-8f8b-59396d6046fd.png)

@@ -64,7 +64,7 @@ curl -X POST "http://localhost:8000/predict" \
 ---
 
 ## 🧭 Acknowledgements
-The model trained is forked from this repo:
+The model fine-tuned is forked from this repo:
 https://github.com/priiyaanjaalii0611/ASL_to_English
 
 However, the training process, API backend, system architecture, and deployment workflow in this repository are independently developed.
