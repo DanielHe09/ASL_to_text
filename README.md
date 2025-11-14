@@ -5,7 +5,6 @@ Frontend repo that connects to this backend server: https://github.com/bradleyya
 This repository provides a complete system for translating **American Sign Language (ASL)** video frames into **English text**, with an optional text-to-speech output layer.  
 It includes a trained gesture recognition model, a FastAPI backend for inference, and a fully containerized runtime for easy deployment.
 
-The general approach was originally inspired by open-source ASL recognition research, but **the dataset preparation, model training workflow, backend API architecture, Docker deployment setup, and integration design in this project are original.**
 
 ---
 
@@ -14,7 +13,7 @@ The general approach was originally inspired by open-source ASL recognition rese
 | Feature | Description |
 |--------|-------------|
 | **Custom-trained ASL recognition model** | Converts ASL hand gestures to English tokens. |
-| **REST API (FastAPI)** | `/predict` for translation, `/health` for status checking. |
+| **REST API (FastAPI)** | `/predict` to turn ASL image to text using the MediaPipe model then text to speech using ElevenLabs, `/get_transcription` to turn speech to text using Gemini, `/health` for status checking. |
 | **Dockerized Deployment** | Run locally or on cloud providers like Render, Railway, DigitalOcean, etc. |
 | **Optional Text-to-Speech** | Uses ElevenLabs to convert recognized text into natural-sounding speech. |
 
@@ -23,18 +22,19 @@ The general approach was originally inspired by open-source ASL recognition rese
 ## 🧱 Project Structure
 ```
 ASL_to_text/
-├─ ASL_to_English/ # Packaged model assets & notebooks
+├─ ASL_to_English/ # FastAPI server + original MediaPipe model repo 
+| ├─ routes.py # API endpoints 
+│ ├─ api_server.py # FastAPI app 
+│ ├─ api_calls.py # methods to call ElevenLabs and Gemini API
+│ ├─ signtalk.py # MediaPipe model, including functions for training at server initialization and to use model on an image input 
 │ ├─ annotations/ # Label data / TF records (if present)
 │ ├─ my_ssd_mobnet/ # Model pipeline / checkpoints / label_map
 │ ├─ test/ # Test images / clips
 │ ├─ Signlangtranslator.ipynb # Training / experimentation notebook
 │ └─ realtime_image_collection.ipynb # Webcam image collection notebook
-├─ server.py # FastAPI app 
 ├─ requirements.txt # original python dep for training model (not needed unless you want to retrain model yourself)
 ├─ Dockerfile # Production container
 ├─ docker-compose.yml # Local orchestration (optional)
-├─ GET_STARTED.sh # Convenience bootstrap script
-├─ CLEAN_SETUP.sh # Clean env / reinstall helper
 ├─ .gitignore
 ├─ .dockerignore
 └─ README.md # (this file)
